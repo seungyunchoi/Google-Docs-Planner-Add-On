@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!=include('style')?>
+  </head>
+  <body>
+    <form id="dataPrompt">
+    <br>
+    
+      <!-- asks user to input information -->
+      <!-- utilized text input type for name, date for the due date
+          and drop down bars for assignment and study type -->
+      <b>Enter Assignment Info</b>
+      <br><br>
+      <label for="assignment-name">Assignment Name: </label>
+      <input type="text" id="assignment-name" name="assignment-name">
+      <br><br>
+      <label for="due-date">Due Date: </label>
+      <input type="date" id="due-date" name="due-date">
+      <br><br>
+      <label for="assignment-type">Assignment Type: </label>
+      <select name="assignment-type" id="assignment-type">
+        <option value="Homework">Homework</option>
+        <option value="Project">Project</option>
+        <option value="Quiz">Quiz</option>
+        <option value="Exam">Exam</option>
+        <option value="Other">Other</option>
+      </select>
+      <br><br>
+      <label for="study-type">Study Type: </label>
+      <select name="study-type" id="study-type">
+        <option value="none">None</option>
+        <option value="cram">Cram</option>
+        <option value="moderate">Moderate</option>
+        <option value="consistent">Consistent</option>
+      </select>
+      <br><br>
+      <label for="description">Description: </label>
+      <textarea id="description" name="description" rows= "5" cols = "35">
+      </textarea>
+      <br><br>
+      
+      <!-- button will allow the user to save their choice and adds information to local database (will be implemented) -->
+      <button class="blue" onclick="addAssignment()" id="add-assignment">Add Assignment</button>
+      <!-- button for when user is finished inputting all assignments to be added to planner -->
+      <button class="blue" onclick="finishInput()" id="finish-input"> Submit Planner </button>
+      <!-- button that will display a series of charts from the data entered into the planner -->
+      <button class="blue" onclick="showAnalytics()" id="show-analytics"> Analytics </button>
+    </form>
+    <script>
+    
+    // creating a array to store assignments
+    var assignments_arr = [];
+    
+    class Assignment{
+      constructor(name, date, assign_type, study_type, start_date, due_date, description){
+        this.name = name;
+        this.date = date;
+        this.assign_type = assign_type;
+        this.study_type = study_type;
+        this.start_date = start_date;
+        this.due_date = due_date;
+        this.description = description;
+      }
+      
+      getName(){
+        return this.name;
+      }
+      
+      getDate(){
+        return this.date;
+      }
+      
+      getAssignType(){
+        return this.assign_type;
+      }
+      
+      getStudyType(){
+        return this.study_type;
+      }
+      
+      getStartDate(){
+        return this.start_date;
+      }
+      
+      getDueDate(){
+        return this.due_date;
+      }
+      
+      getDescription(){
+        return this.description;
+      }
+      
+     }
+
+    function startDate(study_type, assignment_type, due_date){
+        var today = new Date();
+        var curr_date_day = today.getDate();
+        var curr_date_month = (today.getMonth()+1);
+       
+        var curr_date_year = today.getFullYear();
+      
+        var due_date_year = parseInt(due_date.substring(0,4));
+        var due_date_month = parseInt(due_date.substring(5,7));
+        var due_date_day = parseInt(due_date.substring(8,10));
+        
+        
+        if (study_type == "cram"){
+          var study_num = 1/2;
+        }
+        else if (study_type == "moderate"){
+          var study_num = 1; 
+        }
+        else if (study_type == "consistent"){
+          var study_num = 2;
+        }
+        else{
+          var study_num = 1;
+        }
+        
+        if (assignment_type == "Project"){
+          var assign_num = 14;
+        }
+        else if (assignment_type == "Homework"){
+          var assign_num = 3; 
+        }
+        else if(assignment_type == "Quiz"){
+          var assign_num = 3;
+        }
+        else if(assignment_type == "Exam"){
+          var assign_num = 7;
+        }
+        else{
+          var assign_num = 3;
+        }
+        
+        var study_days = Math.ceil(study_num * assign_num);
+        var day_temp = due_date_day-study_days;
+        if (day_temp <= 0){
+          var start_date_day = 31 + day_temp;
+          if (due_date_month == 1){
+            var start_date_month = 12;
+            var start_date_year = due_date_year - 1;
+          }
+          else{
+            var start_date_month = due_date_month-1;
+            var start_date_year = due_date_year;
+           }
+        }
+        else{
+          var start_date_day = day_temp;
+          var start_date_month = due_date_month;
+          var start_date_year = due_date_year;
+        }
+        
+        if (start_date_day < 10){
+         start_date_day =  "" + 0 + start_date_day;
+        }
+       
+        if (start_date_month < 10){
+          start_date_month = "" + 0 + start_date_month;
+        }
+        
+        var cat_current_date = "" + curr_date_year + curr_date_month + curr_date_day;
+        var cat_start_date = "" + start_date_year + start_date_month + start_date_day;
+        
+        if (cat_start_date < cat_current_date){
+          cat_start_date = cat_current_date;
+        } 
+        
+        cat_start_date = cat_start_date.toString();
+        cat_start_date = cat_start_date.substring(0,4) + "-" + cat_start_date.substring(4,6) + "-" + cat_start_date.substring(6,8);
+        return cat_start_date;
+    }
+    
+    
+    function addAssignment(){
+      var name = document.getElementById("assignment-name").value;
+      var due_date = document.getElementById("due-date").value;
+      var assignment = document.getElementById("assignment-type").value;
+      var study = document.getElementById("study-type").value;
+      var start_date = startDate(study,assignment,due_date);
+      var description = document.getElementById("description").value;
+      let newAssignment = new Assignment(name,due_date,assignment,study,start_date,due_date,description);
+      
+      document.getElementById("assignment-name").value = "";
+      document.getElementById("due-date").value = "";
+      document.getElementById("assignment-type").value = "Homework";
+      document.getElementById("study-type").value = "None";
+      document.getElementById("description").value = "";
+      
+      
+           
+      assignments_arr.push(newAssignment);
+    }
+    
+    
+    // when user finishes inputting all assignments to be added to planner
+    function finishInput(){
+      assignments_arr = sortAssignments();
+      var assignments_list = "";
+      var hws = "";
+      var exams = "";
+      var projects = "";
+      var quizzes = "";
+      var other = "";
+      var curr_date = "";
+      var i;
+      for(i=0; i < assignments_arr.length; i++){
+//        document.write(assignments_arr[i].name);
+//        document.write(assignments_arr[i].date);
+//        document.write(assignments_arr[i].assign_type);
+//        document.write(assignments_arr[i].study_type);
+        
+        if(assignments_arr[i].date > curr_date){
+          if(curr_date != ""){
+            if(hws != "") assignments_list += "\tHomeworks:\n" + hws;
+            if(projects != "") assignments_list += "\tProjects:\n" + projects;
+            if(quizzes != "") assignments_list += "\tQuizzes:\n" + quizzes;
+            if(exams != "") assignments_list += "\tExams:\n" + exams;
+            if(other != "") assignments_list += "\tOther:\n" + other;
+            hws = "";
+            projects = "";
+            quizzes = "";
+            exams = "";
+            other = "";
+            
+          }
+          assignments_list += "\n" + assignments_arr[i].date + "\n";
+          curr_date = assignments_arr[i].date;
+        }
+        
+        //groups assignments by assignment type
+        if(assignments_arr[i].assign_type == "Homework"){
+          hws += "\t   "+assignments_arr[i].name + "\n";
+          if(assignments_arr[i].description != "") hws += "\t     " + assignments_arr[i].description + "\n";
+        }else if(assignments_arr[i].assign_type == "Project"){
+          projects += "\t   "+assignments_arr[i].name + "\n";
+          if(assignments_arr[i].description != "") projects += "\t     " + assignments_arr[i].description + "\n";
+        }else if(assignments_arr[i].assign_type == "Quiz"){
+          quizzes += "\t   "+assignments_arr[i].name + "\n";
+          if(assignments_arr[i].description != "") quizzes += "\t     " + assignments_arr[i].description + "\n";
+        }else if(assignments_arr[i].assign_type == "Exam"){
+          exams += "\t   "+assignments_arr[i].name +"\n";
+          if(assignments_arr[i].description != "") exams += "\t     " + assignments_arr[i].description + "\n";
+        }else{
+          other += "\t   "+assignments_arr[i].name + "\n";
+          if(assignments_arr[i].description != "") other += "\t     " + assignments_arr[i].description + "\n";
+        }
+        
+        if(i == assignments_arr.length -1){
+          if(hws != "") assignments_list += "\tHomeworks:\n" + hws;
+          if(projects != "") assignments_list += "\tProjects:\n" + projects;
+          if(quizzes != "") assignments_list += "\tQuizzes:\n" + quizzes;
+          if(exams != "") assignments_list += "\tExams:\n" + exams;
+          if(other != "") assignments_list += "\tOther:\n" + other;
+        }
+        
+      }
+      google.script.run.outputAssignment(assignments_list);
+      
+      
+    }
+    
+    // sort assignments by date or due date
+    function sortAssignments(){
+      
+      const sortedAssignments = assignments_arr.sort(function(a,b){return new Date(a.due_date) - new Date(b.due_date)});
+      return sortedAssignments;
+    
+    
+    }
+    
+    function showAnalytics(){
+      localStorage.setItem('assignments_length', assignments_arr.length);
+      var i;
+      for(i=0; i<assignments_arr.length; i++){
+        localStorage.setItem('assignment_'+i, JSON.stringify(assignments_arr[i]));
+      }
+      google.script.run.showAnalytics();
+    }
+    
+    </script>
+    <br>
+    
+    <!-- creates a basic calendar that will take information from the local database and display the information on the calendar (will be implemented) -->
+    <!-- hard coded information to demonstrate UI -->
+    <div class="container">
+      <div class="calendar">
+        <div class="month">
+        
+          <!-- i class will allow the user to switch between the months -->
+          <p class="left" onClick="clickFunctionL()">&lt</p>
+          <div class="date">
+          <h1></h1>
+          <h4></h4>
+          <p></p>
+          </div>
+          <p class="right" onClick="clickFunctionR()">&gt</p>
+        </div>
+        
+        <div class="dayofweek">
+          <div>SUN</div>
+          <div>MON</div>
+          <div>TUE</div>
+          <div>WED</div>
+          <div>THUR</div>
+          <div>FRI</div>
+          <div>SAT</div>
+        </div>
+        
+        <!-- prev and next day indicate days from the previous month that may roll over -->
+        <div class="day">
+        </div>
+      </div>
+    </div>
+    
+   <script>
+   
+   function daysInMonth (month, year) { // Use 1 for January, 2 for February, etc.
+     return new Date(year, month, 0).getDate();
+   }
+   
+   var today = new Date();
+   var dd = String(today.getDate()).padStart(2, '0');
+   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+   var yyyy = today.getFullYear();
+   today_date = mm + '/' + dd + '/' + yyyy;
+   
+   const months = [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June", 
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+  ];
+  
+   var weekday = new Array();
+   weekday[0] = "Sunday";
+   weekday[1] = "Monday";
+   weekday[2] = "Tuesday";
+   weekday[3] = "Wednesday";
+   weekday[4] = "Thursday";
+   weekday[5] = "Friday";
+   weekday[6] = "Saturday";
+   
+   var index = mm-1;
+   
+   document.querySelector(".date h1").innerHTML = months[mm-1];
+   document.querySelector(".date h4").innerHTML = weekday[today.getDay()];
+   document.querySelector(".date p").innerHTML = today_date;
+   
+   
+   function getDays(index) {
+     var FirstDate = new Date(today.getYear(), index+1, 1);
+     var LastDate = new Date(today.getYear(), index+2, 0);
+   
+     totalDays = daysInMonth(today.getMonth(), today.getYear());
+     var div = document.querySelector(".day");
+	 while(div.firstChild){
+       	div.removeChild(div.firstChild);
+	 }
+   
+   
+     for (var i = 0; i < FirstDate.getDay(); i++) {
+       const newDiv = document.createElement("div"); 
+       const newContent = document.createTextNode(" "); 
+       newDiv.appendChild(newContent); 
+       document.querySelector(".day").append(newDiv);
+     }
+   
+     for (var i = 1; i <= totalDays; i++) {
+       const newDiv = document.createElement("div"); 
+       const newContent = document.createTextNode(i); 
+       if (i == dd) {
+         newDiv.style.backgroundColor = "#D3D3D3";
+       }
+       newDiv.appendChild(newContent); 
+       document.querySelector(".day").append(newDiv);
+     }
+   }
+   getDays();
+  
+   
+   var index = mm-1;
+   function clickFunctionL() {
+     index = index-1;
+     document.querySelector(".date h1").innerHTML = months[index];
+     getDays(index);
+   }
+   function clickFunctionR() {
+     index = index+1;
+     document.querySelector(".date h1").innerHTML = months[index];
+     getDays(index);
+   }
+   
+   </script> 
+  </body>
+</html>

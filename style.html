@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <!--- The CSS package above applies Google styling to buttons and other elements. --->
+    <style>
+    
+    *{
+      margin: 3px;
+      padding: 0;
+      box-sizing:border-box;
+    }
+    
+    html{
+      font-size: 50.5%;
+    }
+    
+    .dataPrompt{
+      top: 0px;
+    }
+    .branding-below {
+      bottom: 56px;
+      top: 0;
+    }
+    .branding-text {
+      left: 7px;
+      position: relative;
+      top: 3px;
+    }
+    .col-contain {
+      overflow: hidden;
+    }
+    .col-one {
+      float: left;
+      width: 50%;
+    }
+    .logo {
+      vertical-align: middle;
+    }
+    .width-100 {
+      width: 100%;
+    }
+    
+    .container{
+    width:100%;
+    height:60%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position: relative;
+
+  }
+  
+  .calendar{
+    width:40rem;
+    height:30rem;
+  }
+  
+  .month{
+    width: 100%;
+    height:8rem;
+    background-color:#D3D3D3;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 10rem;
+    text-align:center;
+  }
+  
+  .month i{
+    font-size:2.5rem;
+    cursor:pointer;
+  }
+  
+  .month h1{
+    font-size:2.5rem;
+  }
+  
+  .month p{
+    font-size:1.5rem;
+  }
+  
+  .dayofweek{
+    width:100%;
+    height:3rem;
+    padding:0 0.3rem;
+    display:flex;
+    align-items:center;
+  }
+  
+  .dayofweek div{
+    font-size:1.3rem;
+    font-weight:400;
+    letter-spacing:0.08rem;
+    width:calc(30rem/7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  
+  .day {
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    padding:0.2rem;
+  }
+  
+  .day div{
+    font-size:1.2rem;
+    margin:0.4rem;
+    width:calc(30rem/7);
+    height:3rem;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  
+  .prev-day{
+    opacity:0.5
+  }
+  .nextday{
+    opacity:0.5;
+  }
+   
+  .today{
+    background-color:#D3D3D3;
+  }
+  
+  .day div:hover:not(.today){ 
+    border:0.2rem solid #777;
+    cursor:pointer;
+  }
+    </style>
+  </head>
+  <body>
+    
+  </body>
+</html>
